@@ -62,13 +62,16 @@ Build mode: fast
 
 - [ ] Learning activity complete — guided route, focused alternative, prior practice connected, or brief recap
 - [ ] Optional edit and transfer reflection addressed — offered/declined/already covered/not applicable as appropriate
-- [ ] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
+- [x] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
 
-Activity and evidence: pending
-Route and stops: pending
-Edit outcome: pending
-Reflection: pending
-Activity mode: pending
+Activity and evidence: Not yet done with the owner. Prepared a reference route from the finished code; the guided activity is offered to the owner at final review.
+Route and stops: Reference route only — `src/app.js` `runCheck` → `src/rules.js` `analyze` / `levelFor` → `src/app.js` `renderHighlighted`, `renderFindings`, `renderLinks`, `renderSteps`.
+Edit outcome: Not applicable yet.
+Reflection: Not yet offered.
+Activity mode: Pending (reference map generated; app map checked in headless Chrome).
 
 ## Revisions
 
+- Words inside a link are explained by the link card, not by tactic cards — the first link-check run flagged "usps" inside the fake address as impersonation as well, which double-counted one clue.
+- The next-steps list always ends with "Already paid or shared something?" — capping the list at six steps cut that step off for messages with many tactics, and it is the most important one if harm already happened.
+- Desktop keeps the marked message in view (sticky) while scrolling the explanation cards — with many tactics the card column was much taller and the highlights scrolled away.
