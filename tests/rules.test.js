@@ -138,3 +138,10 @@ test('steps always end with what to do if you already paid', () => {
   const r = analyze(sample('grandchild'));
   assert.match(r.steps.at(-1), /Already paid/);
 });
+
+test('a fake website name glued to the front of a different site is flagged', () => {
+  const r = inspectLink('https://postal-service.com-redelivery.help-center.top/track');
+  assert.equal(r.site, 'help-center.top');
+  assert.ok(r.issues.some((t) => t.includes('postal-service.com') && t.includes('help-center.top')));
+  assert.equal(inspectLink('https://www.example.com/path').issues.length, 0);
+});

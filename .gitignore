@@ -5,6 +5,7 @@
 .env.*
 !.env.example
 secrets/
-node_modules/
+node_modules
 video/work/
 *.log
+video/*.mp4

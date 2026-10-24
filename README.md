@@ -13,7 +13,7 @@ Scam texts and emails ("your package is on hold, pay $1.99", "Grandma, it's me, 
 ## What it does
 - **Verdict at a glance** — Low risk / Be careful / High risk, with the number of warning signs and one sentence of advice.
 - **Highlights the exact words** — color-coded by tactic: rush and pressure, unusual ways to pay (gift cards, crypto, wire), requests for codes or passwords, impersonation, too good to be true, secrecy, threats. Tap a highlight to jump to its explanation.
-- **Link check** — spells out the site you would *really* visit and why it looks fake: brand name placed in front of a different domain (`usps.com-redelivery.help-center.top`), look-alike spelling (`paypa1.com`, `arnazon.com`), punycode, bare IP addresses, shortened links, the `@` trick, scam-heavy endings like `.top`.
+- **Link check** — spells out the site you would *really* visit and why it looks fake: a fake website name glued to the front of a different site (`postal-service.com-redelivery.help-center.top`), look-alike spelling (`paypa1.com`, `arnazon.com`), punycode, bare IP addresses, shortened links, the `@` trick, scam-heavy endings like `.top`.
 - **What to do in the next 5 minutes** — steps tailored to what was found, always ending with what to do if you already paid.
 - **Ask someone I trust** — copies a ready-to-send note (verdict + reasons + the message) to paste to a family member.
 - **Larger text** toggle (remembered), keyboard friendly, screen-reader live verdict, works on phones.

@@ -290,6 +290,11 @@ export function inspectLink(url) {
       const hostNorm = unLookalike(host).replace(/-/g, '.');
       const mention = BRANDS.find((b) => hostNorm.split('.').includes(b.token) || (b.token.length >= 5 && hostNorm.includes(b.token)));
       if (mention) issues.push(`It mentions ${mention.name}, but the site you would actually visit is ${site} — not ${mention.name}.`);
+      else {
+        // A fake website name glued to the front, e.g. "post-office.com-help.example.top": the real site is at the end.
+        const front = host.replace(/^www\./, '').match(/^([a-z0-9-]+\.(?:com|org|net|gov|co))(?=[-.])/);
+        if (front && front[1] !== site) issues.push(`It starts with “${front[1]}”, but the site you would actually visit is ${site}.`);
+      }
     }
   }
   if (ODD_TLDS.includes(tld) && !known) issues.push(`It ends in “.${tld}”, an ending that scam sites use far more often than real companies.`);

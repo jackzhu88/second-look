@@ -1,0 +1,102 @@
+[
+ {
+  "id": "s1",
+  "kind": "slide",
+  "slide": "title",
+  "shot": "Title card: Second Look logo, tagline, 'Build With AI: Basics'.",
+  "lines": [
+   "This is Second Look: a calm second opinion for messages that feel off."
+  ]
+ },
+ {
+  "id": "s2",
+  "kind": "slide",
+  "slide": "problem",
+  "shot": "Card with two example scam texts (fake delivery fee, 'Grandma, it's me').",
+  "lines": [
+   "Scam texts and emails are built to make you act before you think.",
+   "A fake delivery fee. A grandchild in trouble.",
+   "The usual advice, be careful, doesn't help in the moment.",
+   "What helps is someone who reads the message with you, and points at the tricks."
+  ]
+ },
+ {
+  "id": "s3",
+  "kind": "live",
+  "shot": "Live app home page; cursor moves to the message box and the privacy badge.",
+  "lines": [
+   "So you paste the message into Second Look.",
+   "It runs entirely in your browser. There's no account, no server, and nothing is uploaded."
+  ]
+ },
+ {
+  "id": "s4",
+  "kind": "live",
+  "shot": "Click 'Package delivery text' sample; verdict High risk; hover highlights; scroll to the link card.",
+  "lines": [
+   "Here's a typical package delivery text.",
+   "Second Look says High risk, with four warning signs.",
+   "It marks the exact words: a redelivery fee, within 24 hours, will be returned to sender.",
+   "And it checks the link. The address starts with postal-service dot com, but the site you'd actually visit is help-center dot top."
+  ]
+ },
+ {
+  "id": "s5",
+  "kind": "live",
+  "shot": "Click the grandparent sample; tap 'don't tell Mom' highlight, card flashes; tap 'gift cards'.",
+  "lines": [
+   "Now, the grandparent scam.",
+   "Tap any marked phrase to see why it matters.",
+   "Don't tell Mom. Scammers isolate you, because a relative would spot the trick.",
+   "Gift cards, and send me the codes: money you can never get back."
+  ]
+ },
+ {
+  "id": "s6",
+  "kind": "live",
+  "shot": "Scroll to 'What to do in the next 5 minutes'; click 'Ask someone I trust'; 'Copied' confirmation appears.",
+  "lines": [
+   "Then it tells you what to do in the next five minutes, tailored to what it found, and always ending with what to do if you already paid.",
+   "Ask someone I trust copies a ready-to-send note, with the verdict and the message, so a family member can take a look."
+  ]
+ },
+ {
+  "id": "s7",
+  "kind": "live",
+  "shot": "Click 'Normal reminder' sample; green Low risk verdict.",
+  "lines": [
+   "A normal message stays calm. Low risk, with an honest reminder that no tool is a guarantee."
+  ]
+ },
+ {
+  "id": "s8",
+  "kind": "live",
+  "shot": "Toggle 'A+ Larger text'; then the phone-size layout.",
+  "lines": [
+   "There's a larger text mode for anyone who needs it, and it works on a phone."
+  ]
+ },
+ {
+  "id": "s9",
+  "kind": "slide",
+  "slide": "built",
+  "shot": "Slides: the devpost/ planning docs (scope, PRD, spec, checklist) and the 20 passing tests.",
+  "lines": [
+   "I built Second Look for Build With AI: Basics, using the Devpost Skill Pack with an AI coding agent.",
+   "Scope came first, and it cut the obvious idea of plugging in an AI model. That would cost money, send private messages to a third party, and couldn't show why.",
+   "Instead: clear rules that point at the exact words.",
+   "Then a PRD with acceptance criteria, a technical spec, and four thin slices, each tested and committed.",
+   "Twenty automated tests include the messages that must stay calm."
+  ]
+ },
+ {
+  "id": "s10",
+  "kind": "slide",
+  "slide": "close",
+  "shot": "Closing card: live URL, GitHub repo, MIT license.",
+  "lines": [
+   "Second Look is free, open source under the MIT license, and live on GitHub Pages.",
+   "Take a second look, before you act."
+  ]
+ }
+]
