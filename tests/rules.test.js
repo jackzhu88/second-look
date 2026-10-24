@@ -107,3 +107,29 @@ test('a risky link raises the verdict and words inside it are not double-counted
   assert.equal(r.phrases.filter((p) => p.text.toLowerCase() === 'amazon').length, 0);
   assert.notEqual(r.level, 'low');
 });
+
+import { nextSteps, buildTrustedNote } from '../src/rules.js';
+
+test('next steps are tailored to what was found', () => {
+  const r = analyze(sample('grandchild'));
+  const all = r.steps.join(' ');
+  assert.match(all, /gift cards/i);
+  assert.match(all, /Tell someone you trust/);
+  assert.ok(r.steps.length <= 6);
+  const pkg = analyze(sample('package'));
+  assert.match(pkg.steps.join(' '), /Don't tap the link/);
+});
+
+test('low-risk message gets calm, honest steps', () => {
+  const steps = nextSteps(analyze(sample('pharmacy')));
+  assert.equal(steps.length, 2);
+  assert.match(steps[1], /check with the sender/);
+});
+
+test('trusted note includes verdict, reasons, real site and the message', () => {
+  const text = sample('package');
+  const note = buildTrustedNote(text, analyze(text));
+  assert.match(note, /High risk/);
+  assert.match(note, /help-center\.top/);
+  assert.ok(note.endsWith(text));
+});

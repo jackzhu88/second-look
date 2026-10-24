@@ -1,5 +1,5 @@
 // Second Look — page wiring. All analysis happens in rules.js, on this device.
-import { analyze, LEVEL_TEXT, TACTIC_BY_ID } from './rules.js';
+import { analyze, buildTrustedNote, LEVEL_TEXT, TACTIC_BY_ID } from './rules.js';
 import { SAMPLES } from './samples.js';
 
 const $ = (id) => document.getElementById(id);
@@ -8,6 +8,8 @@ const els = {
   results: $('results'), verdict: $('verdict'), title: $('verdict-title'), count: $('verdict-count'),
   advice: $('verdict-advice'), highlighted: $('highlighted'), legend: $('legend'),
   findings: $('findings'), linksBlock: $('links-block'), links: $('links'),
+  stepsCard: $('steps-card'), steps: $('steps'), ask: $('ask'), askStatus: $('ask-status'),
+  askFallback: $('ask-fallback'), large: $('large-toggle'),
 };
 
 function el(tag, attrs = {}, ...children) {
@@ -95,6 +97,37 @@ function renderLinks(links) {
   )));
 }
 
+function renderSteps(steps) {
+  els.steps.replaceChildren(...steps.map((t) => el('li', {}, t)));
+  els.stepsCard.hidden = false;
+  els.askStatus.textContent = '';
+  els.askFallback.hidden = true;
+}
+
+let lastNote = '';
+
+async function copyNote() {
+  try {
+    await navigator.clipboard.writeText(lastNote);
+    els.askStatus.textContent = '✓ Copied. Paste it into a text or email to someone you trust.';
+  } catch {
+    // Clipboard blocked: show the note selected so it can be copied by hand.
+    els.askFallback.value = lastNote;
+    els.askFallback.hidden = false;
+    els.askFallback.focus();
+    els.askFallback.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch { ok = false; }
+    els.askStatus.textContent = ok ? '✓ Copied. Paste it into a text or email to someone you trust.' : 'Copy the note below and send it to someone you trust.';
+  }
+}
+
+function setLarge(on) {
+  document.documentElement.classList.toggle('large', on);
+  els.large.setAttribute('aria-pressed', String(on));
+  try { localStorage.setItem('sl-large', on ? '1' : '0'); } catch { /* private mode */ }
+}
+
 function renderVerdict(result) {
   const lv = LEVEL_TEXT[result.level];
   els.verdict.className = `verdict ${result.level}`;
@@ -120,6 +153,8 @@ function runCheck() {
   renderLegend(result.findings, result.links);
   renderFindings(result.findings);
   renderLinks(result.links);
+  renderSteps(result.steps);
+  lastNote = buildTrustedNote(text, result);
   els.results.hidden = false;
   els.verdict.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -140,3 +175,6 @@ els.clear.addEventListener('click', () => {
 els.message.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) runCheck();
 });
+els.ask.addEventListener('click', copyNote);
+els.large.addEventListener('click', () => setLarge(!document.documentElement.classList.contains('large')));
+try { if (localStorage.getItem('sl-large') === '1') setLarge(true); } catch { /* ignore */ }

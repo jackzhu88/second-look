@@ -39,7 +39,7 @@ Build mode: fast
   Learner check: Paste a message with a fake delivery link and confirm the card names the real site.
   Commit: `Inspect links and show their real destination`
 
-- [ ] **4. You know what to do next and can ask for help**
+- [x] **4. You know what to do next and can ask for help**
   Becomes usable: Tailored "next 5 minutes" steps, an "Ask someone I trust" copy button, a larger-text toggle that is remembered, and an honest caveat.
   Why now: Completes the core journey from "is this bad?" to "what do I do?".
   PRD ref: `prd.md > Next steps and help`, `prd.md > Accessibility`, `prd.md > States and Boundaries`

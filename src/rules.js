@@ -199,7 +199,9 @@ export function analyze(text) {
     color: TACTIC_BY_ID[id].color,
     words: [...new Set(phrases.filter((p) => p.tactic === id).map((p) => p.text))],
   }));
-  return { level, score, phrases, findings, links, signCount: findings.length + (riskyLinks.length ? 1 : 0) };
+  const result = { level, score, phrases, findings, links, signCount: findings.length + (riskyLinks.length ? 1 : 0) };
+  result.steps = nextSteps(result);
+  return result;
 }
 
 // ---------------------------------------------------------------------------
@@ -295,4 +297,47 @@ export function inspectLink(url) {
   if (isHttp && !issues.length) issues.push('It is not a secure (https) link.');
 
   return { url, host, site, issues, risky: issues.length > 0, brand: known ? known.name : null };
+}
+
+// ---------------------------------------------------------------------------
+// What to do next, and a note for someone you trust.
+
+const STEP_ORDER = ['payment', 'credentials', 'secrecy', 'link', 'impersonation', 'threat', 'urgency', 'too-good'];
+const LINK_STEP = "Don't tap the link. If you're worried about an account or a delivery, open the company's official app or type its website address yourself.";
+
+/** Turn what was found into a short, ordered action list. */
+export function nextSteps(result) {
+  if (result.level === 'low' && result.signCount === 0) {
+    return [
+      'Nothing here matches common scam tactics, but trust your instinct.',
+      'If this message later asks for money, codes or personal details, check with the sender using a number or app you already have.',
+    ];
+  }
+  const found = new Set(result.findings.map((f) => f.tactic));
+  if (result.links.some((l) => l.risky)) found.add('link');
+  const steps = ["Don't reply to the message — even \"STOP\" tells the sender your number is active."];
+  for (const id of STEP_ORDER) {
+    if (!found.has(id)) continue;
+    steps.push(id === 'link' ? LINK_STEP : TACTIC_BY_ID[id].step);
+  }
+  steps.push('Already paid or shared something? Call your bank or card company now, then report it (in the US: ReportFraud.ftc.gov).');
+  return steps.slice(0, 6);
+}
+
+/** A ready-to-paste note asking a trusted person for a second opinion. */
+export function buildTrustedNote(text, result) {
+  const reasons = result.findings.map((f) => f.name.toLowerCase());
+  const risky = result.links.filter((l) => l.risky);
+  if (risky.length) reasons.push(`a suspicious link (it really goes to ${risky.map((l) => l.site).join(', ')})`);
+  const verdict = LEVEL_TEXT[result.level].label;
+  const summary = reasons.length
+    ? `Second Look rated it "${verdict}" and flagged: ${reasons.join('; ')}.`
+    : 'Second Look did not find common warning signs, but I want to be sure.';
+  return [
+    "Hi, I got this message and I'm not sure about it. Could you take a look before I do anything?",
+    summary,
+    '',
+    '--- The message ---',
+    String(text).trim(),
+  ].join('\n');
 }
