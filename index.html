@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Second Look — check a suspicious message</title>
+  <meta name="description" content="Paste a suspicious text or email. Second Look highlights the scam tactics, explains them in plain words and tells you what to do next. Runs entirely in your browser." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='28' cy='28' r='18' fill='none' stroke='%230F6B6B' stroke-width='7'/%3E%3Cpath d='M41 41l14 14' stroke='%230F6B6B' stroke-width='8' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip" href="#message">Skip to the message box</a>
+  <header class="top">
+    <div class="wrap top-inner">
+      <div class="brand">
+        <svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><circle cx="28" cy="28" r="18" fill="none" stroke="currentColor" stroke-width="7"/><path d="M41 41l14 14" stroke="currentColor" stroke-width="8" stroke-linecap="round"/></svg>
+        <span>Second Look</span>
+      </div>
+      <div class="top-actions">
+        <span class="badge" title="Your message is checked on this device. Nothing is uploaded.">🔒 Nothing leaves your device</span>
+        <button id="large-toggle" class="ghost" type="button" aria-pressed="false">A+ Larger text</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <h1>Got a message that feels off?</h1>
+      <p class="lede">Paste it below. Second Look shows the warning signs, explains them in plain words, and tells you what to do next.</p>
+    </section>
+
+    <section class="card input-card" aria-labelledby="input-title">
+      <h2 id="input-title" class="visually-hidden">Your message</h2>
+      <label for="message" class="label">Paste the text message or email</label>
+      <textarea id="message" rows="6" placeholder="For example: “Your account will be suspended. Verify your details within 24 hours…”"></textarea>
+      <div class="samples" role="group" aria-label="Try a sample message">
+        <span class="samples-label">Or try a sample:</span>
+        <span id="sample-buttons"></span>
+      </div>
+      <div class="actions">
+        <button id="check" class="primary" type="button">Check this message</button>
+        <button id="clear" class="ghost" type="button">Clear</button>
+      </div>
+      <p id="empty-hint" class="hint" hidden>Paste a message first, or try a sample.</p>
+    </section>
+
+    <section id="results" class="results" hidden aria-labelledby="verdict-title">
+      <div id="verdict" class="verdict" role="status" aria-live="polite">
+        <div class="verdict-level"><span id="verdict-dot" class="dot"></span><h2 id="verdict-title">—</h2></div>
+        <p id="verdict-count" class="verdict-count"></p>
+        <p id="verdict-advice" class="verdict-advice"></p>
+      </div>
+
+      <div class="grid">
+        <article class="card">
+          <h3>Your message, with warning signs marked</h3>
+          <p class="small muted">Tap a marked phrase to see why.</p>
+          <div id="highlighted" class="highlighted"></div>
+          <div id="legend" class="legend"></div>
+        </article>
+        <article class="card" id="explain-card">
+          <h3>Why these are warning signs</h3>
+          <ul id="findings" class="findings"></ul>
+          <div id="links-block" hidden>
+            <h3>Links in this message</h3>
+            <ul id="links" class="links"></ul>
+          </div>
+        </article>
+      </div>
+
+      <article id="steps-card" class="card steps-card" hidden>
+        <h3>What to do in the next 5 minutes</h3>
+        <ol id="steps" class="steps"></ol>
+        <div class="trusted">
+          <button id="ask" class="primary" type="button">💬 Ask someone I trust</button>
+          <span id="ask-status" class="small muted" role="status" aria-live="polite"></span>
+        </div>
+        <textarea id="ask-fallback" class="fallback" rows="6" readonly hidden aria-label="Note to copy"></textarea>
+      </article>
+
+      <p class="caveat small muted">Second Look uses clear, published rules — not guesswork — so it can miss new tricks. When money, codes or passwords are involved, always check with the company or person using contact details you already trust.</p>
+    </section>
+
+    <section class="how card">
+      <h2>How it works</h2>
+      <div class="how-grid">
+        <div><strong>1. Private by design.</strong> Your message is checked right here in your browser. There is no server, no account and no tracking.</div>
+        <div><strong>2. Clear rules.</strong> Second Look looks for the tactics scammers rely on — rushing you, unusual payments, asking for codes, pretending to be someone, secrecy, threats and fake links.</div>
+        <div><strong>3. Learn the pattern.</strong> Every warning points to the exact words, so next time you'll spot them yourself.</div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="wrap foot small muted">
+    Second Look is free and open source (MIT). It is a helper, not a guarantee.
+  </footer>
+
+  <script type="module" src="src/app.js"></script>
+</body>
+</html>

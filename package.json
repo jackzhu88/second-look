@@ -1,0 +1,11 @@
+{
+  "name": "second-look",
+  "version": "1.0.0",
+  "description": "A calm, private second opinion on suspicious messages. Runs entirely in the browser.",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test",
+    "start": "python3 -m http.server 8000"
+  }
+}

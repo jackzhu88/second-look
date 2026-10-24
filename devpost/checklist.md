@@ -9,7 +9,7 @@ Build mode: fast
 
 ## Slices
 
-- [ ] **1. You can paste a message and see a verdict with suspicious phrases highlighted**
+- [x] **1. You can paste a message and see a verdict with suspicious phrases highlighted**
   Becomes usable: A page where pasting a message (or picking a sample) and pressing Check shows a Low/Caution/High verdict and the message reprinted with tactic phrases highlighted.
   Why now: Proves the unique kernel end to end — scaffold, rule book, analysis, safe rendering — on the first slice.
   PRD ref: `prd.md > The Core Journey` (steps 1-5), `prd.md > Checking a message`
