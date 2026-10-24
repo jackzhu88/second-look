@@ -3,7 +3,7 @@
 **A calm, private second opinion on suspicious messages.**
 Paste a strange text or email. Second Look highlights the exact words that are classic scam tactics, explains each one in plain language, checks where links *really* go, and tells you what to do in the next 5 minutes — all inside your browser. Nothing is uploaded.
 
-**Live demo:** https://jackzhu88.github.io/second-look/ · **Video:** _coming soon_
+**Live demo:** https://jackzhu88.github.io/second-look/ · **Video:** https://vimeo.com/1239016518
 
 ![Second Look flagging a fake package-delivery text](docs/screenshots/package-desktop.png)
 
