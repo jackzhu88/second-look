@@ -315,13 +315,12 @@ export function nextSteps(result) {
   }
   const found = new Set(result.findings.map((f) => f.tactic));
   if (result.links.some((l) => l.risky)) found.add('link');
-  const steps = ["Don't reply to the message — even \"STOP\" tells the sender your number is active."];
-  for (const id of STEP_ORDER) {
-    if (!found.has(id)) continue;
-    steps.push(id === 'link' ? LINK_STEP : TACTIC_BY_ID[id].step);
-  }
-  steps.push('Already paid or shared something? Call your bank or card company now, then report it (in the US: ReportFraud.ftc.gov).');
-  return steps.slice(0, 6);
+  const tacticSteps = STEP_ORDER.filter((id) => found.has(id)).map((id) => (id === 'link' ? LINK_STEP : TACTIC_BY_ID[id].step));
+  return [
+    "Don't reply to the message — even \"STOP\" tells the sender your number is active.",
+    ...tacticSteps.slice(0, 4),
+    'Already paid or shared something? Call your bank or card company now, then report it (in the US: ReportFraud.ftc.gov).',
+  ];
 }
 
 /** A ready-to-paste note asking a trusted person for a second opinion. */

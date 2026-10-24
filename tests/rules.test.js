@@ -133,3 +133,8 @@ test('trusted note includes verdict, reasons, real site and the message', () => 
   assert.match(note, /help-center\.top/);
   assert.ok(note.endsWith(text));
 });
+
+test('steps always end with what to do if you already paid', () => {
+  const r = analyze(sample('grandchild'));
+  assert.match(r.steps.at(-1), /Already paid/);
+});
