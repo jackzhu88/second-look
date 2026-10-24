@@ -29,7 +29,7 @@ Build mode: fast
   Learner check: Tap a highlighted phrase and read its card — is the explanation clear to a non-technical relative?
   Commit: `Explain each warning sign with tactic cards`
 
-- [ ] **3. Links are checked and their real destination is spelled out**
+- [x] **3. Links are checked and their real destination is spelled out**
   Becomes usable: Links in the message get a card saying which site you would really visit and what looks wrong.
   Why now: Fake links are the most common way these messages cause harm.
   PRD ref: `prd.md > Checking links`

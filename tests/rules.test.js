@@ -60,3 +60,50 @@ test('every tactic explains itself and has a next step', () => {
     assert.ok(t.step.length > 20, t.id);
   }
 });
+
+import { inspectLink, extractLinks, siteOf } from '../src/rules.js';
+
+test('brand placed in front of a different site is flagged with the real site', () => {
+  const r = inspectLink('https://usps.com-redelivery.help-center.top/track');
+  assert.equal(r.site, 'help-center.top');
+  assert.ok(r.risky);
+  assert.match(r.issues.join(' '), /help-center\.top/);
+});
+
+test('look-alike spelling is flagged', () => {
+  assert.match(inspectLink('paypa1.com/login').issues.join(' '), /look like PayPal/);
+  assert.match(inspectLink('https://arnazon.com').issues.join(' '), /look like Amazon/);
+});
+
+test('punycode, IP, shortener, @-trick and odd TLD are flagged', () => {
+  assert.ok(inspectLink('https://xn--pple-43d.com').risky);
+  assert.ok(inspectLink('http://192.168.4.20/bank').risky);
+  assert.ok(inspectLink('bit.ly/3xYz').risky);
+  assert.match(inspectLink('https://www.paypal.com@secure-login.ru/x').issues.join(' '), /secure-login\.ru/);
+  assert.ok(inspectLink('free-prize.xyz').risky);
+});
+
+test('genuine company links have no issues', () => {
+  for (const u of ['https://www.usps.com/track', 'https://www.amazon.co.uk/orders', 'https://accounts.google.com/', 'https://www.irs.gov/refunds']) {
+    assert.deepEqual(inspectLink(u).issues, [], u);
+  }
+});
+
+test('extractLinks finds bare and full links with positions and trims punctuation', () => {
+  const text = 'Go to www.chase.com, or paypa1.com/login. Thanks, Mr.Smith';
+  const links = extractLinks(text);
+  assert.deepEqual(links.map((l) => l.url), ['www.chase.com', 'paypa1.com/login']);
+  for (const l of links) assert.equal(text.slice(l.start, l.end), l.url);
+});
+
+test('siteOf handles two-part country endings', () => {
+  assert.equal(siteOf('secure.login.amazon.co.uk'), 'amazon.co.uk');
+  assert.equal(siteOf('a.b.example.com'), 'example.com');
+});
+
+test('a risky link raises the verdict and words inside it are not double-counted', () => {
+  const r = analyze('Your refund is ready: amazon-refunds.support');
+  assert.ok(r.links[0].risky);
+  assert.equal(r.phrases.filter((p) => p.text.toLowerCase() === 'amazon').length, 0);
+  assert.notEqual(r.level, 'low');
+});

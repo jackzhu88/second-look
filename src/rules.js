@@ -183,10 +183,15 @@ export const LEVEL_TEXT = {
 /** Analyze a message. Returns everything the page needs to render. */
 export function analyze(text) {
   const input = String(text ?? '');
-  const phrases = findPhrases(input);
+  const links = extractLinks(input).map((l) => ({ ...l, ...inspectLink(l.url) }));
+  // Words inside a link are explained by the link card instead of a tactic card.
+  const phrases = findPhrases(input).filter((p) => !links.some((l) => p.start < l.end && p.end > l.start));
   const tacticIds = TACTICS.map((t) => t.id).filter((id) => phrases.some((p) => p.tactic === id));
+  const riskyLinks = links.filter((l) => l.risky);
   let score = tacticIds.reduce((sum, id) => sum + TACTIC_BY_ID[id].weight, 0);
-  const level = levelFor(score, tacticIds);
+  if (riskyLinks.length) score += 3;
+  let level = levelFor(score, tacticIds);
+  if (riskyLinks.length && ['urgency', 'payment', 'credentials', 'impersonation', 'too-good'].some((id) => tacticIds.includes(id))) level = 'high';
   const findings = tacticIds.map((id) => ({
     tactic: id,
     name: TACTIC_BY_ID[id].name,
@@ -194,5 +199,100 @@ export function analyze(text) {
     color: TACTIC_BY_ID[id].color,
     words: [...new Set(phrases.filter((p) => p.tactic === id).map((p) => p.text))],
   }));
-  return { level, score, phrases, findings, signCount: findings.length };
+  return { level, score, phrases, findings, links, signCount: findings.length + (riskyLinks.length ? 1 : 0) };
+}
+
+// ---------------------------------------------------------------------------
+// Link checker: where would this link really take you?
+
+export const BRANDS = [
+  { name: 'USPS', token: 'usps', sites: ['usps.com'] },
+  { name: 'PayPal', token: 'paypal', sites: ['paypal.com'] },
+  { name: 'Amazon', token: 'amazon', sites: ['amazon.com', 'amazon.co.uk', 'amazon.ca', 'amazon.de', 'amazon.com.au'] },
+  { name: 'Apple', token: 'apple', sites: ['apple.com', 'icloud.com'] },
+  { name: 'iCloud', token: 'icloud', sites: ['icloud.com', 'apple.com'] },
+  { name: 'Microsoft', token: 'microsoft', sites: ['microsoft.com', 'live.com', 'office.com'] },
+  { name: 'Netflix', token: 'netflix', sites: ['netflix.com'] },
+  { name: 'FedEx', token: 'fedex', sites: ['fedex.com'] },
+  { name: 'UPS', token: 'ups', sites: ['ups.com'] },
+  { name: 'DHL', token: 'dhl', sites: ['dhl.com'] },
+  { name: 'Chase', token: 'chase', sites: ['chase.com'] },
+  { name: 'Wells Fargo', token: 'wellsfargo', sites: ['wellsfargo.com'] },
+  { name: 'Bank of America', token: 'bankofamerica', sites: ['bankofamerica.com'] },
+  { name: 'the IRS', token: 'irs', sites: ['irs.gov'] },
+  { name: 'Google', token: 'google', sites: ['google.com'] },
+  { name: 'Facebook', token: 'facebook', sites: ['facebook.com'] },
+  { name: 'WhatsApp', token: 'whatsapp', sites: ['whatsapp.com'] },
+  { name: 'Coinbase', token: 'coinbase', sites: ['coinbase.com'] },
+  { name: 'Royal Mail', token: 'royalmail', sites: ['royalmail.com'] },
+];
+
+const SHORTENERS = ['bit.ly', 'tinyurl.com', 't.co', 'goo.gl', 'is.gd', 'cutt.ly', 'rb.gy', 'ow.ly', 'buff.ly', 't.ly', 'shorturl.at', 'tiny.cc', 'rebrand.ly'];
+const ODD_TLDS = ['top', 'xyz', 'icu', 'click', 'zip', 'mov', 'loan', 'work', 'support', 'rest', 'cfd', 'sbs', 'buzz', 'cyou', 'monster', 'quest', 'help', 'live', 'vip', 'win', 'bond', 'gq', 'tk', 'ml', 'cf', 'ga'];
+const SECOND_LEVEL = ['co.uk', 'org.uk', 'gov.uk', 'ac.uk', 'com.au', 'net.au', 'co.nz', 'co.jp', 'com.br', 'co.in', 'com.mx'];
+const COMMON_TLDS = ['com', 'net', 'org', 'gov', 'edu', 'io', 'co', 'us', 'uk', 'ca', 'info', 'me', 'ly', 'gl', 'gd', 'at', 'cc'];
+
+/** The part of a host name that actually decides which site you're on (e.g. help-center.top). */
+export function siteOf(host) {
+  const labels = host.toLowerCase().replace(/\.$/, '').split('.');
+  if (labels.length <= 2) return labels.join('.');
+  const lastTwo = labels.slice(-2).join('.');
+  return SECOND_LEVEL.includes(lastTwo) ? labels.slice(-3).join('.') : lastTwo;
+}
+
+/** Undo common look-alike swaps: 0→o, 1→l, rn→m, etc. */
+function unLookalike(s) {
+  return s.toLowerCase().replace(/rn/g, 'm').replace(/vv/g, 'w').replace(/0/g, 'o').replace(/[1|!]/g, 'l').replace(/3/g, 'e').replace(/5/g, 's').replace(/4/g, 'a').replace(/7/g, 't');
+}
+
+/** Find links (with or without http://) in a message, with their positions. */
+export function extractLinks(text) {
+  const tlds = [...new Set([...COMMON_TLDS, ...ODD_TLDS])].join('|');
+  const re = new RegExp(String.raw`\b(?:https?:\/\/[^\s<>"']+|www\.[^\s<>"']+|(?:[a-z0-9-]+\.)+(?:${tlds})(?:\/[^\s<>"']*)?(?![a-z0-9-]))`, 'gi');
+  const out = [];
+  for (const m of String(text).matchAll(re)) {
+    let url = m[0].replace(/[.,;:!?)\]]+$/, '');
+    if (!url.includes('.')) continue;
+    out.push({ url, start: m.index, end: m.index + url.length });
+  }
+  return out;
+}
+
+/** Explain where a link really goes and what looks wrong with it. */
+export function inspectLink(url) {
+  const issues = [];
+  let rest = url.replace(/^https?:\/\//i, '');
+  const isHttp = /^http:\/\//i.test(url);
+  const authority = rest.split(/[/?#]/)[0];
+  let hostPart = authority;
+  if (authority.includes('@')) {
+    hostPart = authority.slice(authority.lastIndexOf('@') + 1);
+  }
+  const host = hostPart.replace(/:\d+$/, '').toLowerCase();
+  const isIp = /^\d{1,3}(\.\d{1,3}){3}$/.test(host);
+  const site = isIp ? host : siteOf(host);
+  const tld = host.split('.').pop();
+
+  if (authority.includes('@')) issues.push(`Everything before the “@” is ignored by your browser. The link really opens ${host}.`);
+  if (isIp) issues.push('It uses a bare number address instead of a company name. Real companies don’t do this.');
+  if (host.split('.').some((l) => l.startsWith('xn--'))) issues.push('It uses special characters that can imitate normal letters (a “look-alike” address).');
+  if (SHORTENERS.includes(site) || SHORTENERS.includes(host)) issues.push('It is a shortened link, which hides where it really goes.');
+
+  const known = BRANDS.find((b) => b.sites.includes(site));
+  if (!known && !isIp) {
+    const siteLabel = unLookalike(site.split('.')[0]);
+    const lookalike = BRANDS.find((b) => siteLabel === b.token || siteLabel.replace(/-/g, '') === b.token);
+    if (lookalike) {
+      issues.push(`It is spelled to look like ${lookalike.name}, but ${site} is not ${lookalike.name}’s real website.`);
+    } else {
+      const hostNorm = unLookalike(host).replace(/-/g, '.');
+      const mention = BRANDS.find((b) => hostNorm.split('.').includes(b.token) || (b.token.length >= 5 && hostNorm.includes(b.token)));
+      if (mention) issues.push(`It mentions ${mention.name}, but the site you would actually visit is ${site} — not ${mention.name}.`);
+    }
+  }
+  if (ODD_TLDS.includes(tld) && !known) issues.push(`It ends in “.${tld}”, an ending that scam sites use far more often than real companies.`);
+  if (host.split('.').length > 4 || (host.replace(/xn--/g, '').match(/-/g) || []).length >= 3) issues.push('The address is unusually long and complicated, a common trick to hide the real site.');
+  if (isHttp && !issues.length) issues.push('It is not a secure (https) link.');
+
+  return { url, host, site, issues, risky: issues.length > 0, brand: known ? known.name : null };
 }

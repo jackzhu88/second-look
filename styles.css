@@ -125,3 +125,4 @@ mark.link { background: var(--mark-red); border-color: var(--red); border-bottom
 @media (max-width: 820px) { .how-grid { grid-template-columns: 1fr; } }
 .foot { padding: 10px 20px 40px; text-align: center; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+mark.link-ok { background: rgba(80, 180, 120, 0.18); border-color: var(--green); border-bottom-style: dotted; }
