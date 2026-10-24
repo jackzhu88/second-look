@@ -19,7 +19,7 @@ Build mode: fast
   Learner check: Try the "Package delivery" sample and say whether the verdict and highlights make sense at a glance.
   Commit: `Add message checker with verdict and highlights`
 
-- [ ] **2. Each warning sign explains itself**
+- [x] **2. Each warning sign explains itself**
   Becomes usable: A card for every tactic found, with the matched words and why scammers use it; tapping a highlight scrolls to its card.
   Why now: The explanation is what makes this teach rather than just judge.
   PRD ref: `prd.md > Seeing why`

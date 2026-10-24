@@ -7,6 +7,7 @@ const els = {
   message: $('message'), check: $('check'), clear: $('clear'), hint: $('empty-hint'),
   results: $('results'), verdict: $('verdict'), title: $('verdict-title'), count: $('verdict-count'),
   advice: $('verdict-advice'), highlighted: $('highlighted'), legend: $('legend'),
+  findings: $('findings'),
 };
 
 function el(tag, attrs = {}, ...children) {
@@ -27,7 +28,12 @@ function renderHighlighted(text, phrases) {
   for (const p of phrases) {
     if (p.start > pos) els.highlighted.append(text.slice(pos, p.start));
     const tactic = TACTIC_BY_ID[p.tactic];
-    els.highlighted.append(el('mark', { class: tactic.color, title: tactic.name, 'data-tactic': p.tactic }, text.slice(p.start, p.end)));
+    els.highlighted.append(el('mark', {
+      class: tactic.color, title: `${tactic.name} — tap to see why`, tabindex: '0', role: 'button',
+      'data-tactic': p.tactic,
+      onclick: () => focusFinding(p.tactic),
+      onkeydown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); focusFinding(p.tactic); } },
+    }, text.slice(p.start, p.end)));
     pos = p.end;
   }
   if (pos < text.length) els.highlighted.append(text.slice(pos));
@@ -35,6 +41,29 @@ function renderHighlighted(text, phrases) {
 
 function renderLegend(findings) {
   els.legend.replaceChildren(...findings.map((f) => el('span', { class: f.color }, f.name)));
+}
+
+/** One card per tactic found: name, the exact words, and why scammers use it. */
+function renderFindings(findings) {
+  if (!findings.length) {
+    els.findings.replaceChildren(el('li', { class: 'none' }, 'Nothing from our list of scam tactics showed up in this message.'));
+    return;
+  }
+  els.findings.replaceChildren(...findings.map((f) => el('li', { class: `finding ${f.color}`, id: `finding-${f.tactic}`, tabindex: '-1' },
+    el('h4', {}, f.name),
+    el('div', { class: 'words' }, 'Found: ', ...f.words.flatMap((w, i) => [i ? ', ' : '', el('q', {}, w)])),
+    el('p', {}, f.why),
+  )));
+}
+
+/** Tapping a highlight brings its explanation into view. */
+function focusFinding(tacticId) {
+  const card = document.getElementById(`finding-${tacticId}`);
+  if (!card) return;
+  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  card.focus({ preventScroll: true });
+  card.classList.add('flash');
+  setTimeout(() => card.classList.remove('flash'), 1200);
 }
 
 function renderVerdict(result) {
@@ -60,6 +89,7 @@ function runCheck() {
   renderVerdict(result);
   renderHighlighted(text, result.phrases);
   renderLegend(result.findings);
+  renderFindings(result.findings);
   els.results.hidden = false;
   els.verdict.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
